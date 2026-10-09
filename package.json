@@ -1,0 +1,16 @@
+{
+  "name": "lesson-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "pdf-parse": "2.4.5",
+    "mammoth": "1.10.0"
+  }
+}

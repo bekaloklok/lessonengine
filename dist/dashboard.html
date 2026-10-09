@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8fc">
+  <meta name="description" content="Lesson Engine — рабочий кабинет учителя: уроки, КМЖ, задания, проверка работ и материалы.">
+  <title>Рабочий кабинет · Lesson Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      color-scheme:light;
+      --bg:#f7f8fc;--surface:#fff;--ink:#0a0d15;--muted:#747985;
+      --line:#e5e7ed;--blue:#3755ed;--blue-hover:#2946d6;--blue-soft:#f0f2ff;
+      --radius:13px;--shadow:0 12px 36px rgba(31,42,80,.035);
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.5 Inter,Arial,sans-serif}
+    button,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+    h1,h2,h3,p{margin:0}h1,h2,h3,.brand,.button{font-family:Geist,Inter,Arial,sans-serif}
+    h1,h2,h3{font-weight:500;letter-spacing:-.04em}h1{font-size:clamp(27px,2.5vw,36px);line-height:1.2}
+    h2{font-size:16px;line-height:1.3}h3{font-size:14px;line-height:1.35}
+    :focus-visible{outline:3px solid #8b98ff;outline-offset:2px}
+    .skip-link{position:fixed;z-index:100;left:8px;top:8px;transform:translateY(-160%);padding:9px 14px;background:var(--ink);color:#fff}
+    .skip-link:focus{transform:translateY(0)}
+    .icon{width:17px;height:17px;flex:none;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .shell{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100vh}
+    .sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:25px 13px 18px;background:#fff;border-right:1px solid var(--line)}
+    .sidebar-top{display:flex;align-items:center;justify-content:space-between;padding:0 12px 21px}
+    .brand{font-weight:600;font-size:20px;letter-spacing:-.06em;white-space:nowrap}
+    .brand span{color:var(--blue)}
+    .brand small{font-size:9px;vertical-align:top;letter-spacing:0;margin-left:2px}
+    .sidebar-collapse{color:#9aa0ad;font-size:15px}
+    .nav-label{padding:16px 13px 7px;color:#acb0ba;font-size:10px}
+    .side-link{display:flex;align-items:center;gap:11px;min-height:38px;padding:8px 12px;border-radius:8px;color:#696f7d;font-size:12px;transition:background .2s,color .2s}
+    .side-link:hover{background:#f7f8fb;color:var(--ink)}
+    .side-link.active{background:var(--blue-soft);color:var(--blue);font-weight:600}
+    .sidebar-foot{margin-top:auto;border-top:1px solid var(--line);padding:15px 12px 0;color:#858b97;font-size:11px}
+    .sidebar-foot strong{display:block;margin-bottom:3px;color:var(--ink);font-size:12px;font-weight:600}
+    .main{min-width:0;padding:34px clamp(22px,3.3vw,52px) 72px}
+    .main-inner{max-width:1380px;margin:0 auto}
+    .page-head{display:flex;justify-content:space-between;align-items:start;gap:24px;margin-bottom:25px}
+    .page-head p{margin-top:7px;color:var(--muted);font-size:13px}
+    .demo-badge{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;padding:8px 12px;border:1px solid #d9ddf8;border-radius:100px;background:#f2f4ff;color:var(--blue);font-size:11px;font-weight:600}
+    .demo-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue)}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+    .metric{min-height:127px;padding:19px 21px;border-right:1px solid var(--line)}
+    .metric:last-child{border-right:0}
+    .metric-label{color:#969ba7;font-size:11px}
+    .metric-value{margin-top:7px;font:500 clamp(25px,2.4vw,34px)/1.15 Geist,Inter,sans-serif;letter-spacing:-.045em}
+    .metric-value.blue{color:var(--blue)}
+    .metric-detail{margin-top:7px;color:#858b97;font-size:11px;line-height:1.4}
+    .metric-link{color:var(--blue)}
+    .workspace-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.95fr) minmax(0,.9fr);gap:14px;align-items:stretch}
+    .panel{min-width:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);scroll-margin-top:24px}
+    .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:18px 19px 14px;border-bottom:1px solid var(--line)}
+    .panel-head span{color:#a0a5af;font-size:10px;white-space:nowrap}
+    .panel-body{padding:16px 19px 20px}
+    .plan-progress{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:11px}
+    .progress-track{height:6px;margin:10px 0 18px;border-radius:99px;background:#eff0f4;overflow:hidden}
+    .progress-fill{width:0;height:100%;border-radius:inherit;background:var(--blue);transition:width .35s ease}
+    .plan-task{display:grid;grid-template-columns:19px 1fr auto;align-items:start;gap:10px;padding:13px 0;border-top:1px solid #eff0f3}
+    .plan-task:first-of-type{border-top:0}
+    .plan-task input{appearance:none;width:17px;height:17px;margin:1px 0 0;border:1.5px solid #c4c9d3;border-radius:5px;background:#fff;cursor:pointer}
+    .plan-task input:checked{border-color:var(--blue);background:var(--blue)}
+    .plan-task input:checked::after{content:"✓";display:block;color:#fff;font-size:12px;text-align:center;line-height:14px}
+    .plan-task input:focus-visible{outline:3px solid #8b98ff;outline-offset:2px}
+    .plan-task label{cursor:pointer}
+    .plan-task strong{display:block;font-size:12px;font-weight:500;line-height:1.4}
+    .plan-task input:checked+label strong{text-decoration:line-through;color:#9a9faa}
+    .plan-task small{display:block;margin-top:3px;color:#a0a5af;font-size:10px}
+    .plan-task time{color:#9499a4;font-size:10px;white-space:nowrap}
+    .panel-foot{padding:13px 19px;border-top:1px solid var(--line);color:var(--blue);font-size:11px}
+    .adapt-intro{color:var(--muted);font-size:11px;line-height:1.5}
+    .field-label{display:block;margin:16px 0 7px;color:#777d8a;font-size:10px}
+    .field{width:100%;min-height:39px;padding:8px 10px;border:1px solid #d8dce5;border-radius:8px;background:#fbfbfd;color:var(--ink);font-size:11px}
+    .chips{display:flex;flex-wrap:wrap;gap:7px}
+    .chip{padding:7px 9px;border:1px solid #dfe2e9;border-radius:8px;background:#fff;color:#5f6672;font-size:10px;line-height:1.25;transition:background .2s,border-color .2s}
+    .chip:hover{border-color:#aab4f6}
+    .chip[aria-pressed="true"]{border-color:#bac4ff;background:var(--blue-soft);color:var(--blue)}
+    .button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:9px 13px;border:1px solid var(--blue);border-radius:9px;background:var(--blue);color:#fff;font-size:11px;font-weight:600;line-height:1.2;transition:background .2s,transform .2s}
+    .button:hover{background:var(--blue-hover);transform:translateY(-1px)}
+    .button:active{transform:translateY(0)}
+    .button-muted{background:#fff;color:var(--blue)}
+    .button-muted:hover{background:var(--blue-soft)}
+    .adapt-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .link-row{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #eff0f3;font-size:11px}
+    .link-row:first-child{padding-top:0}
+    .link-row span{color:#8a909c}
+    .link-row strong{font-weight:500;text-align:right}
+    .link-row strong.ok{color:var(--blue)}
+    .quality-note{margin-top:17px;padding:11px 12px;border-radius:8px;background:#f4f5fa;color:#676e7b;font-size:10px;line-height:1.5}
+    .bottom-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);gap:14px;margin-top:14px}
+    .lesson-table{width:100%;border-collapse:collapse}
+    .lesson-table th{padding:0 0 11px;color:#a0a5af;font-size:10px;font-weight:400;text-align:left}
+    .lesson-table th:last-child,.lesson-table td:last-child{text-align:right}
+    .lesson-table td{padding:11px 0;border-top:1px solid #eff0f3;font-size:11px;vertical-align:top}
+    .lesson-table td:first-child{width:31px;color:var(--blue)}
+    .lesson-table td:last-child{color:#8d939f;white-space:nowrap}
+    .change-list{margin:0;padding-left:17px;color:#5f6673;font-size:11px;line-height:1.6}
+    .change-list li+li{margin-top:7px}
+    .empty-state{display:flex;align-items:center;min-height:110px;color:#969ba6;font-size:11px;line-height:1.6}
+    .callout{margin-top:16px;padding:13px 14px;border:1px solid #e4e8fa;border-radius:9px;background:#f7f8ff;color:#6571ab;font-size:10px;line-height:1.5}
+    .tour-replay{border:0;background:transparent;color:#747985;font-size:11px;padding:8px 4px;text-decoration:underline;text-underline-offset:3px}.tour-replay:hover{color:var(--blue)}
+    .tour-layer[hidden]{display:none}.tour-layer{position:fixed;inset:0;z-index:200;overflow:hidden}.tour-spotlight{position:fixed;z-index:1;left:50%;top:50%;width:0;height:0;border:2px solid #7287ff;border-radius:15px;box-shadow:0 0 0 200vmax rgba(4,7,14,.80),0 0 0 5px rgba(77,103,255,.13);pointer-events:none;transition:left .46s cubic-bezier(.2,.8,.2,1),top .46s cubic-bezier(.2,.8,.2,1),width .46s cubic-bezier(.2,.8,.2,1),height .46s cubic-bezier(.2,.8,.2,1);will-change:left,top,width,height}.tour-card{position:fixed;z-index:2;width:min(390px,calc(100vw - 28px));max-height:calc(100dvh - 28px);overflow:auto;padding:24px;border:1px solid #303746;border-radius:17px;background:#1a1f29;color:#f6f8ff;box-shadow:0 22px 65px rgba(0,0,0,.36);transition:left .46s cubic-bezier(.2,.8,.2,1),top .46s cubic-bezier(.2,.8,.2,1),opacity .22s,transform .35s cubic-bezier(.2,.8,.2,1)}.tour-card.is-entering{opacity:0;transform:translateY(12px)}.tour-count{color:#abb8e6;font-size:12px}.tour-count b{color:#7188ff;font-size:16px;margin-right:4px}.tour-card h2{margin-top:15px;color:#f6f8ff;font-size:21px;letter-spacing:-.035em}.tour-card p{margin-top:10px;color:#a5b0c5;font-size:13px;line-height:1.65}.tour-actions{display:flex;align-items:center;gap:8px;margin-top:23px}.tour-actions .tour-skip{margin-right:auto;border:0;background:transparent;color:#aab4c9;padding:9px 0;font-size:12px}.tour-actions .tour-skip:hover{color:#fff}.tour-actions .button{min-width:78px}.tour-back{border:1px solid #424b60;border-radius:9px;background:transparent;color:#d3dcf4;padding:9px 12px;font-size:11px}.tour-back:hover{background:#29303f}.tour-back[hidden]{display:none}
+    .mobile-nav{display:none}
+    @media(max-width:1160px){.workspace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-grid .quality-panel{grid-column:span 2}.metric{padding:17px}}
+    @media(max-width:900px){.shell{display:block}.sidebar{display:none}.main{padding:26px 20px 100px}.mobile-nav{position:fixed;z-index:50;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:rgba(255,255,255,.97);backdrop-filter:blur(14px)}.mobile-nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 10px;color:#7c8290;font-size:10px}.mobile-nav a.active{color:var(--blue)}.mobile-nav .icon{width:19px;height:19px}}
+    @media(max-width:640px){.page-head{align-items:start}.page-head h1{font-size:27px}.page-head p{font-size:11px}.demo-badge{font-size:9px;padding:6px 8px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{min-height:108px;border-bottom:1px solid var(--line)}.metric:nth-child(2){border-right:0}.metric:nth-child(n+3){border-bottom:0}.workspace-grid,.bottom-grid{grid-template-columns:1fr}.workspace-grid .quality-panel{grid-column:auto}.main{padding-inline:14px}.panel-head,.panel-body{padding-inline:16px}.panel-foot{padding-inline:16px}.tour-card{padding:19px}.tour-card h2{font-size:19px}}
+    @media(prefers-reduced-motion:no-preference){.page-head,.metrics,.workspace-grid,.bottom-grid{animation:appear .55s ease-out both}.metrics{animation-delay:.06s}.workspace-grid{animation-delay:.12s}.bottom-grid{animation-delay:.18s}@keyframes appear{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  .mobile-top{display:none}@media(max-width:900px){.mobile-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px;background:#fff}.mobile-top a:last-child{color:var(--blue);font-size:12px}}@media(max-width:640px){.mobile-top{padding-inline:14px}}.page-actions{display:flex;align-items:center;gap:10px}@media(max-width:640px){.page-head{flex-wrap:wrap}.page-actions{width:100%;justify-content:space-between}}
+    .side-button{width:100%;border:0;background:transparent;text-align:left}.main{padding:0 0 72px}.main-inner{padding:34px clamp(22px,3.3vw,52px) 0}.workspace-topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:69px;padding:12px clamp(22px,3.3vw,52px);border-bottom:1px solid var(--line);background:#fff}.search-wrap{display:flex;align-items:center;gap:10px;width:min(460px,55%);min-height:39px;padding:0 12px;border:1px solid var(--line);border-radius:9px;color:#949ba7;background:#f8f9fb}.search-wrap:focus-within{border-color:#aeb9ff;box-shadow:0 0 0 3px var(--blue-soft)}.search-wrap input{width:100%;border:0;outline:0;background:transparent;color:var(--ink);font-size:12px}.search-wrap input::placeholder{color:#a3a8b1}.topbar-right{display:flex;align-items:center;gap:18px}.teacher-label{display:flex;align-items:center;gap:9px;color:#666e7c;font-size:11px;white-space:nowrap}.teacher-label span{display:grid;place-items:center;width:28px;height:28px;border:1px solid #dbe1fb;border-radius:50%;background:var(--blue-soft);color:var(--blue);font-weight:600}.eyebrow{display:block;color:var(--blue);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}.page-head{margin-bottom:23px}.page-head h1{margin-top:7px}.page-head p{margin-top:8px}.tool-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.tool-tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;min-width:0;min-height:156px;padding:16px 14px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;color:var(--ink);text-align:left;box-shadow:var(--shadow);transition:border-color .2s,background .2s,transform .2s,box-shadow .2s}.tool-tile:hover{border-color:#b9c3ff;transform:translateY(-3px);box-shadow:0 13px 30px rgba(31,42,80,.08)}.tool-tile.primary{border-color:#bfc8ff;background:#f2f4ff}.tool-tile.primary:hover{background:#e9edff}.tool-number{display:grid;place-items:center;width:30px;height:30px;margin-bottom:19px;border-radius:8px;background:#f0f2f8;color:var(--blue);font:600 11px Geist,Inter,sans-serif}.tool-tile.primary .tool-number{background:var(--blue);color:#fff}.tool-title{max-width:100%;font:500 14px/1.25 Geist,Inter,sans-serif;letter-spacing:-.025em;overflow-wrap:anywhere}.tool-detail{margin-top:6px;padding-right:13px;color:#838a97;font-size:10px;line-height:1.35}.tool-arrow{position:absolute;right:14px;bottom:14px;color:#a4aabd;font-size:16px}.tool-tile.primary .tool-arrow{color:var(--blue)}.home-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:24px;margin-top:34px}.home-section{min-width:0}.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:13px}.section-head h2{margin-top:5px;font-size:20px}.section-head>a{color:var(--blue);font-size:11px;white-space:nowrap}.section-head>a:hover{text-decoration:underline}.recent-list{min-height:192px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;overflow:hidden}.recent-empty{padding:26px;color:#8a919e;font-size:12px;line-height:1.6}.recent-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:63px;padding:11px 17px;border-bottom:1px solid #eff0f4}.recent-row:last-child{border-bottom:0}.recent-row:hover{background:#fafbff}.recent-row strong{display:block;font-size:12px;font-weight:600}.recent-row small{display:block;margin-top:4px;color:#8a919e;font-size:10px}.recent-row .recent-arrow{color:var(--blue);font-size:17px}.search-status{min-height:17px;margin-top:7px;color:#8a919e;font-size:10px}.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.quick-grid a,.quick-grid button{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:58px;padding:12px;border:1px solid var(--line);border-radius:9px;background:#fff;color:#555e70;text-align:left;font-size:11px;line-height:1.3}.quick-grid a:hover,.quick-grid button:hover{border-color:#b9c3ff;background:#f7f8ff;color:var(--blue)}.quick-grid span{color:#a1a9bd}.demo-section{margin-top:47px;scroll-margin-top:20px}.demo-head{align-items:center;margin-bottom:17px}.demo-head p{margin-top:6px;color:var(--muted);font-size:11px}.feature-dialog{width:min(410px,calc(100vw - 28px));padding:26px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);box-shadow:0 25px 80px rgba(15,25,60,.2)}.feature-dialog::backdrop{background:rgba(6,10,22,.56)}.feature-dialog h2{margin-top:10px;font-size:23px}.feature-dialog p{margin-top:11px;color:#6f7683;font-size:12px;line-height:1.6}.dialog-close{position:absolute;right:15px;top:12px;border:0;background:transparent;color:#8a91a0;font-size:22px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:23px}.dialog-actions .button-muted{border-color:var(--line)}
+    @media(max-width:1250px){.tool-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.tool-tile{min-height:140px}.tool-number{margin-bottom:13px}}
+    @media(max-width:900px){.main{padding-bottom:100px}.main-inner{padding:26px 20px 0}.workspace-topbar{padding-inline:20px}.home-grid{grid-template-columns:1fr;gap:27px}}
+    @media(max-width:640px){.main-inner{padding:24px 14px 0}.workspace-topbar{padding:10px 14px}.search-wrap{width:100%}.teacher-label{display:none}.topbar-right{gap:0}.tour-replay{white-space:nowrap}.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tool-tile{min-height:134px;padding:13px}.tool-number{width:25px;height:25px;margin-bottom:10px}.tool-title{font-size:12px}.tool-detail{font-size:9px}.tool-arrow{right:11px;bottom:9px}.home-grid{margin-top:28px}.section-head h2{font-size:18px}.demo-section{margin-top:36px}.demo-head{align-items:start}}
+    @media(max-width:380px){.workspace-topbar{flex-wrap:wrap}.search-wrap{order:2}.topbar-right{order:1;margin-left:auto}.quick-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5z"/><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20M8 7h8M8 10h6"/></symbol>
+    <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 2 2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="icon-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1 0l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M3 20h18M6 17v-5M12 17V7M18 17V4"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></symbol>
+  </svg>
+  <a class="skip-link" href="#content">Перейти к содержанию</a>
+  <div class="mobile-top"><a class="brand" href="index.html" aria-label="Lesson Engine — главная">lesson<span>.</span>engine</a><a href="create-lesson.html">Создать урок →</a></div><div class="shell">
+    <aside class="sidebar" aria-label="Боковая навигация">
+      <div class="sidebar-top"><a class="brand" href="index.html" aria-label="Lesson Engine — главная страница">lesson<span>.</span>engine<small>β</small></a><span class="sidebar-collapse" aria-hidden="true">◧</span></div>
+      <nav aria-label="Рабочие разделы">
+        <div class="nav-label">Рабочее место</div>
+        <a class="side-link active" href="#content" aria-current="page"><svg class="icon"><use href="#icon-grid"/></svg>Главная</a>
+        <a class="side-link" href="#recent-lessons"><svg class="icon"><use href="#icon-book"/></svg>Мои уроки</a>
+        <a class="side-link" href="create-lesson.html"><svg class="icon"><use href="#icon-spark"/></svg>Создать урок</a>
+        <div class="nav-label">Инструменты</div>
+        <button class="side-link side-button" type="button" data-feature="Загрузить КМЖ"><svg class="icon"><use href="#icon-book"/></svg>Загрузить КМЖ</button>
+        <button class="side-link side-button" type="button" data-feature="СОР / СОЧ"><svg class="icon"><use href="#icon-check"/></svg>СОР / СОЧ</button>
+        <button class="side-link side-button" type="button" data-feature="Домашнее задание"><svg class="icon"><use href="#icon-book"/></svg>Домашнее задание</button>
+        <button class="side-link side-button" type="button" data-feature="Проверка работ"><svg class="icon"><use href="#icon-check"/></svg>Проверка работ</button>
+        <button class="side-link side-button" type="button" data-feature="Материалы"><svg class="icon"><use href="#icon-spark"/></svg>Материалы и карточки</button>
+        <div class="nav-label">Пример работы</div>
+        <a class="side-link" href="#demo"><svg class="icon"><use href="#icon-chart"/></svg>Адаптация урока</a>
+      </nav>
+      <div class="sidebar-foot"><strong>Lesson Engine</strong>Черновики хранятся в этом браузере. Инструменты с пометкой «В разработке» пока недоступны.</div>
+    </aside>
+    <main class="main" id="content">
+      <div class="workspace-topbar"><label class="search-wrap" for="lesson-search"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg><input id="lesson-search" type="search" placeholder="Найти свой урок" autocomplete="off" aria-label="Поиск по моим урокам"></label><div class="topbar-right"><button class="tour-replay" type="button" id="tour-replay">Показать обзор</button><span class="teacher-label"><span aria-hidden="true">У</span> Кабинет учителя</span></div></div>
+      <div class="main-inner">
+        <header class="page-head"><div><span class="eyebrow">Рабочее место учителя</span><h1>Что хотите подготовить сегодня?</h1><p>Выберите инструмент или продолжите работу над своим уроком.</p></div></header>
+        <section class="tool-grid" id="main-actions" aria-label="Основные действия">
+          <a class="tool-tile primary" id="create-lesson-link" href="create-lesson.html"><span class="tool-number">01</span><span class="tool-title">Создать урок</span><span class="tool-detail">КМЖ или сценарий с нуля</span><span class="tool-arrow" aria-hidden="true">↗</span></a>
+          <button class="tool-tile" type="button" data-feature="Загрузить КМЖ"><span class="tool-number">02</span><span class="tool-title">Загрузить КМЖ</span><span class="tool-detail">Доработать свой документ</span><span class="tool-arrow" aria-hidden="true">↗</span></button>
+          <button class="tool-tile" type="button" data-feature="СОР / СОЧ"><span class="tool-number">03</span><span class="tool-title">Создать СОР / СОЧ</span><span class="tool-detail">Работа и критерии</span><span class="tool-arrow" aria-hidden="true">↗</span></button>
+          <button class="tool-tile" type="button" data-feature="Домашнее задание"><span class="tool-number">04</span><span class="tool-title">Домашнее задание</span><span class="tool-detail">Задания по теме урока</span><span class="tool-arrow" aria-hidden="true">↗</span></button>
+          <button class="tool-tile" type="button" data-feature="Проверка работ"><span class="tool-number">05</span><span class="tool-title">Проверить работы</span><span class="tool-detail">ДЗ и контрольные</span><span class="tool-arrow" aria-hidden="true">↗</span></button>
+          <button class="tool-tile" type="button" data-feature="Карточки"><span class="tool-number">06</span><span class="tool-title">Создать карточки</span><span class="tool-detail">Материалы для класса</span><span class="tool-arrow" aria-hidden="true">↗</span></button>
+        </section>
+        <div class="home-grid">
+          <section class="home-section" id="recent-lessons" aria-labelledby="recent-title"><div class="section-head"><div><span class="eyebrow">Продолжить работу</span><h2 id="recent-title">Последние уроки</h2></div><a href="create-lesson.html#saved">Все черновики →</a></div><div class="recent-list" id="recent-list"><p class="recent-empty">Здесь появятся ваши сохранённые уроки.</p></div><p class="search-status" id="search-status" role="status" aria-live="polite"></p></section>
+          <section class="home-section" id="quick-actions" aria-labelledby="quick-title"><div class="section-head"><div><span class="eyebrow">Для готового урока</span><h2 id="quick-title">Быстрые действия</h2></div></div><div class="quick-grid"><a href="#adaptation">Адаптировать урок <span aria-hidden="true">↗</span></a><button type="button" data-feature="Игра">Добавить игру <span aria-hidden="true">↗</span></button><button type="button" data-feature="Презентация">Создать презентацию <span aria-hidden="true">↗</span></button><button type="button" data-feature="Карточки">Создать карточки <span aria-hidden="true">↗</span></button><a href="#quality">Проверить связи <span aria-hidden="true">↗</span></a><button type="button" data-feature="Критерии оценивания">Критерии оценивания <span aria-hidden="true">↗</span></button></div></section>
+        </div>
+        <section class="demo-section" id="demo" aria-labelledby="demo-title"><div class="section-head demo-head"><div><span class="eyebrow">Как устроен Lesson Engine</span><h2 id="demo-title">Пример адаптации урока</h2><p>Закон Ома · Физика · 8 класс. Попробуйте изменить условия и сравнить результат.</p></div><span class="demo-badge">Демонстрация</span></div>
+        <section class="metrics" aria-label="Данные демонстрационного урока">
+          <div class="metric"><div class="metric-label">Тема</div><div class="metric-value" style="font-size:21px">Закон Ома</div><div class="metric-detail">Физика · 8 класс</div></div>
+          <div class="metric"><div class="metric-label">Длительность</div><div class="metric-value blue" id="metric-duration">45 мин</div><div class="metric-detail">Меняется в <a class="metric-link" href="#adaptation">адаптации →</a></div></div>
+          <div class="metric"><div class="metric-label">Этапы урока</div><div class="metric-value">4</div><div class="metric-detail">От актуализации до проверки</div></div>
+          <div class="metric"><div class="metric-label">Учебная цель</div><div class="metric-value">1</div><div class="metric-detail">Связана с практикой и проверкой</div></div>
+        </section>
+        <div class="workspace-grid">
+          <section class="panel" id="plan" aria-labelledby="plan-title">
+            <div class="panel-head"><h2 id="plan-title">План урока</h2><span id="plan-counter">0/4 отмечено</span></div>
+            <div class="panel-body">
+              <div class="plan-progress"><span>Подготовка этапов</span><span id="progress-label">0%</span></div>
+              <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+              <div id="plan-tasks"></div>
+            </div>
+            <div class="panel-foot">Отметки действуют только в этом открытом примере</div>
+          </section>
+          <section class="panel" id="adaptation" aria-labelledby="adapt-title">
+            <div class="panel-head"><h2 id="adapt-title">Адаптировать урок</h2><span>Пример</span></div>
+            <div class="panel-body">
+              <p class="adapt-intro">Измените условия и посмотрите, как перестраивается план.</p>
+              <label class="field-label" for="duration">Длительность</label>
+              <select class="field" id="duration"><option value="45">45 минут</option><option value="30">30 минут</option></select>
+              <div class="field-label" id="conditions-label">Условия в классе</div>
+              <div class="chips" role="group" aria-labelledby="conditions-label">
+                <button class="chip" type="button" data-option="projector" aria-pressed="false">Без проектора</button>
+                <button class="chip" type="button" data-option="simple" aria-pressed="false">Проще задания</button>
+                <button class="chip" type="button" data-option="team" aria-pressed="false">Командная игра</button>
+              </div>
+              <div class="adapt-actions"><button class="button" type="button" id="adapt">Обновить план <span aria-hidden="true">→</span></button><button class="button button-muted" type="button" id="reset">Сбросить</button></div>
+            </div>
+          </section>
+          <section class="panel quality-panel" id="quality" aria-labelledby="quality-title">
+            <div class="panel-head"><h2 id="quality-title">Проверка связей</h2><span>На примере</span></div>
+            <div class="panel-body">
+              <div class="link-row"><span>Цель</span><strong>Применять закон Ома</strong></div>
+              <div class="link-row"><span>Практика</span><strong>Решение задач</strong></div>
+              <div class="link-row"><span>Проверка</span><strong>Объяснить выбор формулы</strong></div>
+              <div class="link-row"><span>Связь элементов</span><strong class="ok">Показана</strong></div>
+              <p class="quality-note">Это пример структуры проверки. Автоматическая оценка качества урока пока не подключена.</p>
+            </div>
+          </section>
+        </div>
+        <div class="bottom-grid">
+          <section class="panel" aria-labelledby="structure-title">
+            <div class="panel-head"><h2 id="structure-title">Структура урока</h2><span id="structure-duration">45 минут</span></div>
+            <div class="panel-body"><table class="lesson-table"><thead><tr><th>№</th><th>Этап</th><th>Время</th></tr></thead><tbody id="lesson-table-body"></tbody></table></div>
+          </section>
+          <section class="panel" id="changes" aria-labelledby="changes-title">
+            <div class="panel-head"><h2 id="changes-title">Что изменилось</h2><span>После адаптации</span></div>
+            <div class="panel-body"><div id="changes-content" role="status" aria-live="polite"><div class="empty-state">Пока изменений нет. Выберите условия и обновите план урока.</div></div><p class="callout">Изменения этого демонстрационного урока не сохраняются. Свои черновики можно создать в конструкторе.</p></div>
+          </section>
+        </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <nav class="mobile-nav" aria-label="Мобильная навигация">
+    <a class="active" href="#content" aria-current="page"><svg class="icon"><use href="#icon-grid"/></svg>Главная</a>
+    <a href="#recent-lessons"><svg class="icon"><use href="#icon-book"/></svg>Уроки</a>
+    <a href="create-lesson.html"><svg class="icon"><use href="#icon-spark"/></svg>Создать</a>
+    <a href="#quick-actions"><svg class="icon"><use href="#icon-check"/></svg>Инструменты</a>
+  </nav>
+  <dialog class="feature-dialog" id="feature-dialog" aria-labelledby="feature-title"><form method="dialog"><button class="dialog-close" aria-label="Закрыть" value="cancel">×</button><span class="eyebrow">В разработке</span><h2 id="feature-title"></h2><p>Этот инструмент пока не подключён. Сейчас можно собрать урок вручную и сохранить черновик в браузере.</p><div class="dialog-actions"><button class="button button-muted" value="cancel">Понятно</button><a class="button" href="create-lesson.html">Создать урок</a></div></form></dialog>
+  <div class="tour-layer" id="tour-layer" hidden>
+    <div class="tour-spotlight" id="tour-spotlight" aria-hidden="true"></div>
+    <section class="tour-card" id="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-description" tabindex="-1">
+      <div class="tour-count"><b aria-hidden="true">✦</b><span id="tour-count">1 из 4</span></div>
+      <h2 id="tour-title"></h2><p id="tour-description"></p>
+      <div class="tour-actions"><button class="tour-skip" type="button" id="tour-skip">Пропустить</button><button class="tour-back" type="button" id="tour-back" hidden>Назад</button><button class="button" type="button" id="tour-next">Далее →</button></div>
+    </section>
+  </div>
+  <script>
+    const duration=document.getElementById('duration');
+    const chips=[...document.querySelectorAll('.chip')];
+    const chosen=name=>document.querySelector('[data-option="'+name+'"]').getAttribute('aria-pressed')==='true';
+    const baseRows=[
+      ['Вспомнить знакомые величины','Актуализация знаний',5],
+      ['Разобрать закон на примере','Объяснение',12],
+      ['Решить задачи в группах','Практика',18],
+      ['Проверить понимание','Проверка цели',10]
+    ];
+    let currentRows=baseRows;
+    function updateProgress(){
+      const tasks=[...document.querySelectorAll('.plan-task input')];
+      const done=tasks.filter(task=>task.checked).length;
+      document.getElementById('plan-counter').textContent=done+'/4 отмечено';
+      document.getElementById('progress-label').textContent=(done*25)+'%';
+      document.getElementById('progress-fill').style.width=(done*25)+'%';
+    }
+    function renderRows(rows){
+      const checked=[...document.querySelectorAll('.plan-task input')].map(input=>input.checked);
+      document.getElementById('plan-tasks').innerHTML=rows.map((row,index)=>
+        '<div class="plan-task"><input type="checkbox" id="task-'+index+'" '+(checked[index]?'checked':'')+'><label for="task-'+index+'"><strong>'+row[0]+'</strong><small>'+row[1]+'</small></label><time>'+row[2]+' мин</time></div>'
+      ).join('');
+      document.getElementById('lesson-table-body').innerHTML=rows.map((row,index)=>
+        '<tr><td>'+String(index+1).padStart(2,'0')+'</td><td>'+row[0]+'</td><td>'+row[2]+' мин</td></tr>'
+      ).join('');
+      document.querySelectorAll('.plan-task input').forEach(input=>input.addEventListener('change',updateProgress));
+      updateProgress();
+    }
+    function adaptLesson(){
+      const short=duration.value==='30',projector=chosen('projector'),simple=chosen('simple'),team=chosen('team');
+      currentRows=short?[
+        ['Вспомнить знакомые величины','Актуализация знаний',4],
+        [projector?'Разобрать закон с карточками':'Разобрать закон на примере','Объяснение',8],
+        [team?'Командная игра с задачами':simple?'Решить задачи с подсказками':'Решить практические задачи','Практика',12],
+        ['Короткая проверка понимания','Проверка цели',6]
+      ]:[
+        baseRows[0],
+        [projector?'Разобрать закон с карточками':baseRows[1][0],'Объяснение',12],
+        [team?'Командная игра с задачами':simple?'Решить задачи с подсказками':baseRows[2][0],'Практика',18],
+        baseRows[3]
+      ];
+      renderRows(currentRows);
+      document.getElementById('metric-duration').textContent=(short?'30':'45')+' мин';
+      document.getElementById('structure-duration').textContent=(short?'30':'45')+' минут';
+      const changes=[];
+      if(short)changes.push('План сокращён до 30 минут.');
+      if(projector)changes.push('Объяснение перенесено на карточки.');
+      if(simple&&!team)changes.push('Практические задачи дополнены подсказками.');
+      if(team)changes.push('Практика заменена командной игрой.');
+      document.getElementById('changes-content').innerHTML=changes.length?
+        '<ul class="change-list">'+changes.map(change=>'<li>'+change+'</li>').join('')+'</ul>':
+        '<div class="empty-state">Условия не изменились. Показан базовый план урока.</div>';
+    }
+    chips.forEach(chip=>chip.addEventListener('click',()=>{
+      chip.setAttribute('aria-pressed',chip.getAttribute('aria-pressed')==='true'?'false':'true');
+    }));
+    document.getElementById('adapt').addEventListener('click',adaptLesson);
+    document.getElementById('reset').addEventListener('click',()=>{
+      duration.value='45';chips.forEach(chip=>chip.setAttribute('aria-pressed','false'));
+      adaptLesson();
+      document.getElementById('changes-content').innerHTML='<div class="empty-state">Пока изменений нет. Выберите условия и обновите план урока.</div>';
+    });
+    renderRows(baseRows);
+    const recentList=document.getElementById('recent-list');
+    const lessonSearch=document.getElementById('lesson-search');
+    function renderRecent(){
+      let lessons=[];
+      try{const saved=JSON.parse(localStorage.getItem('lesson-engine-lessons-v1')||'[]');if(Array.isArray(saved))lessons=saved;}catch{}
+      const query=lessonSearch.value.trim().toLocaleLowerCase('ru');
+      const matches=lessons.filter(lesson=>[lesson.topic,lesson.subject,lesson.grade].some(part=>String(part||'').toLocaleLowerCase('ru').includes(query))).sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0)).slice(0,4);
+      recentList.replaceChildren();
+      if(!matches.length){const empty=document.createElement('p');empty.className='recent-empty';empty.textContent=query?'По этому запросу уроков не найдено.':'Здесь появятся ваши сохранённые уроки. Начните с создания урока.';recentList.append(empty);}
+      matches.forEach(lesson=>{
+        const row=document.createElement('a');row.className='recent-row';row.href='create-lesson.html?lesson='+encodeURIComponent(lesson.id);
+        const text=document.createElement('span');const title=document.createElement('strong');title.textContent=lesson.topic||'Урок без темы';
+        const meta=document.createElement('small');meta.textContent=[lesson.subject,lesson.grade?lesson.grade+' класс':'',lesson.duration?lesson.duration+' мин':''].filter(Boolean).join(' · ');
+        const arrow=document.createElement('span');arrow.className='recent-arrow';arrow.setAttribute('aria-hidden','true');arrow.textContent='↗';
+        text.append(title,meta);row.append(text,arrow);recentList.append(row);
+      });
+      document.getElementById('search-status').textContent=query?`Найдено: ${matches.length}`:'';
+    }
+    lessonSearch.addEventListener('input',renderRecent);
+    renderRecent();
+    const featureDialog=document.getElementById('feature-dialog');
+    document.querySelectorAll('[data-feature]').forEach(button=>button.addEventListener('click',()=>{
+      const routes={'Загрузить КМЖ':'kmj','СОР / СОЧ':'assessment','Домашнее задание':'homework','Карточки':'cards','Материалы':'cards'};if(routes[button.dataset.feature]){location.href='tools.html?tool='+routes[button.dataset.feature];return;}
+      document.getElementById('feature-title').textContent=button.dataset.feature;
+      featureDialog.showModal();
+    }));
+    const tourKey='lesson-engine-dashboard-tour-v2';
+    const tourSteps=[
+      {target:'#create-lesson-link',title:'Начните со своего урока',description:'Создайте КМЖ или сценарий урока: укажите предмет, класс, тему, цель и этапы.'},
+      {target:'#recent-lessons',mobile:'#recent-title',title:'Продолжайте с черновика',description:'Сохранённые в этом браузере уроки появляются здесь. Найдите нужный через поиск сверху и откройте для редактирования.'},
+      {target:'#quick-actions',mobile:'#quick-title',title:'Инструменты рядом с уроком',description:'Здесь будут карточки, игры, презентации и другие материалы. Пока доступны только демонстрационные действия.'},
+      {target:'#demo',mobile:'#demo-title',title:'Посмотрите адаптацию',description:'Ниже — пример урока. Измените длительность или условия класса и посмотрите, как обновляется план.'}
+    ];
+    const tourLayer=document.getElementById('tour-layer');
+    const tourSpotlight=document.getElementById('tour-spotlight');
+    const tourCard=document.getElementById('tour-card');
+    const tourNext=document.getElementById('tour-next');
+    const tourBack=document.getElementById('tour-back');
+    const tourShell=document.querySelector('.shell');
+    const tourMobileNav=document.querySelector('.mobile-nav');
+    let tourIndex=0,tourActive=false,tourReturnFocus=null,tourFrame=0;
+    function tourTarget(){const step=tourSteps[tourIndex];return document.querySelector(innerWidth<=900&&step.mobile?step.mobile:step.target);}
+    function placeTour(){
+      if(!tourActive)return;
+      const target=tourTarget();if(!target)return;
+      const r=target.getBoundingClientRect(),vw=innerWidth,vh=innerHeight,pad=9;
+      const left=Math.max(pad,r.left-8),top=Math.max(pad,r.top-8);
+      const width=Math.max(0,Math.min(vw-left-pad,r.width+16));
+      const height=Math.max(0,Math.min(vh-top-pad,r.height+16));
+      Object.assign(tourSpotlight.style,{left:left+'px',top:top+'px',width:width+'px',height:height+'px'});
+      const cw=tourCard.offsetWidth,ch=tourCard.offsetHeight,gap=18,bottom=vw<=900?vh-72:vh-14;
+      let cardLeft=Math.min(Math.max(14,left),vw-cw-14),cardTop;
+      if(top+height+gap+ch<=bottom)cardTop=top+height+gap;
+      else if(top-gap-ch>=14)cardTop=top-gap-ch;
+      else if(left+width+gap+cw<=vw-14){cardLeft=left+width+gap;cardTop=Math.min(Math.max(14,top),bottom-ch);}
+      else if(left-gap-cw>=14){cardLeft=left-gap-cw;cardTop=Math.min(Math.max(14,top),bottom-ch);}
+      else cardTop=Math.max(14,bottom-ch);
+      Object.assign(tourCard.style,{left:Math.max(14,cardLeft)+'px',top:Math.max(14,cardTop)+'px'});
+    }
+    function scheduleTourPosition(){cancelAnimationFrame(tourFrame);tourFrame=requestAnimationFrame(placeTour);}
+    function showTourStep(index){
+      tourIndex=index;const step=tourSteps[index];
+      document.getElementById('tour-count').textContent=(index+1)+' из '+tourSteps.length;
+      document.getElementById('tour-title').textContent=step.title;
+      document.getElementById('tour-description').textContent=step.description;
+      tourBack.hidden=index===0;tourNext.textContent=index===tourSteps.length-1?'Готово':'Далее →';
+      tourCard.classList.add('is-entering');
+      const target=tourTarget();
+      if(target&&innerWidth<=900)window.scrollTo({top:Math.max(0,scrollY+target.getBoundingClientRect().top-105),behavior:'auto'});
+      else target?.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'});
+      scheduleTourPosition();
+      requestAnimationFrame(()=>{tourCard.classList.remove('is-entering');tourNext.focus({preventScroll:true});});
+    }
+    function closeTour(){
+      if(!tourActive)return;
+      tourActive=false;tourLayer.hidden=true;tourShell.inert=false;tourMobileNav.inert=false;
+      try{localStorage.setItem(tourKey,'done');}catch{}
+      (tourReturnFocus?.isConnected&&tourReturnFocus!==document.body?tourReturnFocus:document.getElementById('tour-replay')).focus({preventScroll:true});
+    }
+    function openTour(){
+      if(tourActive)return;
+      tourReturnFocus=document.activeElement;tourActive=true;tourLayer.hidden=false;
+      tourShell.inert=true;tourMobileNav.inert=true;
+      showTourStep(0);
+    }
+    document.getElementById('tour-replay').addEventListener('click',openTour);
+    document.getElementById('tour-skip').addEventListener('click',closeTour);
+    tourBack.addEventListener('click',()=>showTourStep(Math.max(0,tourIndex-1)));
+    tourNext.addEventListener('click',()=>tourIndex===tourSteps.length-1?closeTour():showTourStep(tourIndex+1));
+    tourLayer.addEventListener('keydown',event=>{
+      if(event.key==='Escape'){event.preventDefault();closeTour();return;}
+      if(event.key!=='Tab')return;
+      const focusable=[...tourCard.querySelectorAll('button:not([hidden])')];
+      const first=focusable[0],last=focusable[focusable.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    });
+    window.addEventListener('resize',scheduleTourPosition);
+    window.addEventListener('scroll',scheduleTourPosition,{passive:true});
+    let tourSeen=false;try{tourSeen=localStorage.getItem(tourKey)==='done';}catch{}
+    if(!tourSeen)window.setTimeout(openTour,600);
+  </script>
+</body>
+</html>
