@@ -92,7 +92,7 @@ const toolPrompts={
 async function extractDocument(bytes,extension){
  try {
   if(extension==='.docx') {const mammoth=await import('mammoth');return (await mammoth.default.extractRawText({buffer:bytes})).value;}
-  const {PDFParse}=await import('pdf-parse');const parser=new PDFParse({data:bytes});
+  const {getData}=await import('pdf-parse/worker');const {PDFParse}=await import('pdf-parse');PDFParse.setWorker(getData());const parser=new PDFParse({data:bytes});
   try {const info=await parser.getInfo();if(info.total>100)throw new Error('Слишком много страниц.');return (await parser.getText()).text;}finally{await parser.destroy();}
  }catch{throw new Error('Не удалось прочитать документ. Используйте PDF с текстом, DOCX или TXT.');}
 }
